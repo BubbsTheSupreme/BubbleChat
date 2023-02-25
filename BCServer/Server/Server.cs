@@ -3,7 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Net.Sockets;
 using System.Collections.Generic;
-using BubbleChat.Packet.Handler;
+using BubbleChat.Packets.Handler;
 
 namespace BubbleChat.Server;
 
@@ -83,7 +83,7 @@ public class BubbleChatServer
 			Socket client = Socket.Accept();
 			ClientConnection clientCon = new(client);
 			Connections.Add(clientCon);
-			RecvLoop.Start(client);
+			RecvLoop.Start(clientCon);
 		}
 		catch (Exception e)
 		{

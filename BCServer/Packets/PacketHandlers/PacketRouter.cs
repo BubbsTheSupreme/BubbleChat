@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using BubbleChat.Server;
 using BubbleChat.Packets;
 
-namespace BubbleChat.Packet.Handler;
+namespace BubbleChat.Packets.Handler;
 
 static class PacketRouter
 {
@@ -16,6 +16,7 @@ static class PacketRouter
 		{
 			case 0:
 				Console.WriteLine(Encoding.ASCII.GetString(buffer[1..]));
+				Console.ReadLine();
 				string ack = "ACK";
 				MessagePacket packet = new((ushort)ack.Length);
 				packet.WritePacketId(0).WriteMessage(Encoding.ASCII.GetBytes("ACK"));
