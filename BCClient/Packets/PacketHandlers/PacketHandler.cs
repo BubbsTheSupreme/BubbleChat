@@ -5,11 +5,11 @@ using System.Net.Sockets;
 using BubbleChat.Client;
 using BubbleChat.Packets;
 
-namespace BubbleChat.Packet.Handler;
+namespace BubbleChat.Packets.Handler;
 
 static class PacketRouter
 {
-	public static void Process(Client client, byte[] buffer)
+	public static void Process(Socket socket, byte[] buffer)
 	{
 		byte packetId = buffer[0];
 		switch(packetId)
@@ -19,7 +19,7 @@ static class PacketRouter
 				string ack = "ACK";
 				MessagePacket packet = new((ushort)ack.Length);
 				packet.WritePacketId(0).WriteMessage(Encoding.ASCII.GetBytes("ACK"));
-				client.Send(packet.Finalize());
+				socket.Send(packet.Finalize());
 				break;
 			case 1:
 			break;

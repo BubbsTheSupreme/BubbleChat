@@ -24,10 +24,10 @@ public class MessagePacket
 		return this;
 	}
 
-	public MessagePacket WritePassword(byte[] password)
+	public MessagePacket WriteMessage(byte[] message)
 	{
 		memoryStream.Seek(3, SeekOrigin.Begin);
-		memoryStream.Write(password);
+		memoryStream.Write(message);
 		return this;
 	}
 

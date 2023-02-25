@@ -11,10 +11,15 @@ public class ClientConnection
 {
 	public Socket Client;
 	public string Username;
+	public IPAddress ClientIp;
+	private Thread RecvLoop;
 
 	public ClientConnection(Socket client)
 	{
 		Client = client;
+		ClientIp = IPAddress.Parse(((IPEndPoint)Client.RemoteEndPoint).Address.ToString()); //Gets Ip
+		RecvLoop = new(Receive);
+		RecvLoop.Start(this);
 	}
 
 	public void Send(byte[] buffer)
@@ -43,15 +48,38 @@ public class ClientConnection
 			Console.WriteLine(e);
 		}
 	}
+
+	public void Receive(object args)
+	{
+		ClientConnection client = (ClientConnection)args;
+		try
+		{
+			while(client.Client.Connected)
+			{
+				byte[] buffer = new byte[2];
+				int count = client.Client.Receive(buffer);
+				if (count == 0) break;
+				ushort size = BitConverter.ToUInt16(buffer, 0);
+				buffer = new byte[size];
+				count = client.Client.Receive(buffer);
+				PacketRouter.Process(client, buffer);
+			}
+		}
+		catch(Exception e)
+		{
+			Console.WriteLine(e);
+			Client.Close();
+			Client.Dispose();
+		}
+	}
 }
 
 public class BubbleChatServer
 {
 	private Socket Socket;
-	private Thread RecvLoop;
 	private IPAddress ServerIp;
 	private IPEndPoint ServerEndPoint;
-	private List<ClientConnection> Connections = new();
+	private List<ClientConnection> Connections = new(); //keeps track of all connections
 
 	public BubbleChatServer(ushort port)
 	{
@@ -77,13 +105,14 @@ public class BubbleChatServer
 	{
 		try
 		{
-			RecvLoop = new(Receive);
 			Console.WriteLine("Listening for connections...");
-			Socket.Listen();
-			Socket client = Socket.Accept();
-			ClientConnection clientCon = new(client);
-			Connections.Add(clientCon);
-			RecvLoop.Start(clientCon);
+			while(true)
+			{
+				Socket.Listen();
+				Socket client = Socket.Accept(); // Get client connection socket 
+				ClientConnection clientCon = new(client); //create new client connection 
+				Connections.Add(clientCon); // add client connection to list of connections
+			}
 		}
 		catch (Exception e)
 		{
@@ -93,27 +122,4 @@ public class BubbleChatServer
 		}
 	}
 
-	public void Receive(object args)
-	{
-		ClientConnection client = (ClientConnection)args;
-		try
-		{
-			while(client.Client.Connected)
-			{
-				byte[] buffer = new byte[2];
-				int count = client.Client.Receive(buffer);
-				if (count == 0) break;
-				ushort size = BitConverter.ToUInt16(buffer, 0);
-				buffer = new byte[size];
-				count = client.Client.Receive(buffer);
-				PacketRouter.Process(client, buffer);
-			}
-		}
-		catch(Exception e)
-		{
-			Console.WriteLine(e);
-			Socket.Close();
-			Socket.Dispose();
-		}
-	}
 }

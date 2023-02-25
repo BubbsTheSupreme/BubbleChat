@@ -15,8 +15,7 @@ static class PacketRouter
 		switch(packetId)
 		{
 			case 0:
-				Console.WriteLine(Encoding.ASCII.GetString(buffer[1..]));
-				Console.ReadLine();
+				Console.WriteLine($"[{client.ClientIp}] {Encoding.ASCII.GetString(buffer[1..])}");
 				string ack = "ACK";
 				MessagePacket packet = new((ushort)ack.Length);
 				packet.WritePacketId(0).WriteMessage(Encoding.ASCII.GetBytes("ACK"));

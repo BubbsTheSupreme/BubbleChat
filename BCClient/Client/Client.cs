@@ -2,7 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-
+using BubbleChat.Packets.Handler;
 
 namespace BubbleChat.Client;
 
@@ -19,7 +19,7 @@ public class BubbleChatClient
 	{
 		ServerPort = port;
 		ServerIp = IPAddress.Parse(ip);
-		Socket = new Socket(Address.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+		Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 	}
 
 	public void Connect()
@@ -28,9 +28,7 @@ public class BubbleChatClient
 		{
 			RecvLoop = new Thread(Receive);
 			Socket.Connect(ServerIp, ServerPort);
-			Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Connected to: {ServerIp}");
-            Console.ResetColor();
 			RecvLoop.Start();
 		}
 		catch (Exception e)
@@ -39,7 +37,20 @@ public class BubbleChatClient
 			Socket.Close();
 			Socket.Dispose();
 		}
+	}
 
+	public void Send(byte[] buffer)
+	{
+		try
+		{
+			Socket.Send(buffer);
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine(e);
+			Socket.Close();
+			Socket.Dispose();
+		}
 	}
 
 	public void Receive()
