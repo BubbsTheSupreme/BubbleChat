@@ -6,34 +6,39 @@ using BubbleChat.Packets.Handler;
 
 namespace BubbleChat.Client;
 
-public class BubbleChatClient
+public class BubbleChatClient // NEEDS ONDISCONNECT EVENT
 {
 	private Socket Socket;
-	private string Username;
+	// private string Username;
 	private Thread RecvLoop;
+	public static event Action<string> OnDisconnect;
 
-	private IPAddress ServerIp;
-	private ushort ServerPort;
-
-	public BubbleChatClient(ushort port, string ip)
+	public BubbleChatClient()
 	{
-		ServerPort = port;
-		ServerIp = IPAddress.Parse(ip);
 		Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 	}
 
-	public void Connect()
+	public bool IsConnected()
+	{
+		if(Socket.Connected == true)
+			return true;
+		else 
+			return false;
+	}
+
+	public void Connect(ushort port, string ip)
 	{
 		try
 		{
 			RecvLoop = new Thread(Receive);
-			Socket.Connect(ServerIp, ServerPort);
-            Console.WriteLine($"Connected to: {ServerIp}");
+			Socket.Connect(ip, port);
+            Console.WriteLine($"Connected to: {ip}");
 			RecvLoop.Start();
 		}
 		catch (Exception e)
 		{
 			Console.WriteLine(e);
+			OnDisconnect?.Invoke("Could not connect..");
 			Socket.Close();
 			Socket.Dispose();
 		}
@@ -48,6 +53,7 @@ public class BubbleChatClient
 		catch (Exception e)
 		{
 			Console.WriteLine(e);
+			OnDisconnect?.Invoke("Connection has been lost");
 			Socket.Close();
 			Socket.Dispose();
 		}
@@ -71,8 +77,14 @@ public class BubbleChatClient
 		catch(Exception e)
 		{
 			Console.WriteLine(e);
+			OnDisconnect?.Invoke("Connection has been lost");
 			Socket.Close();
 			Socket.Dispose();
 		}
+	}
+
+	public void Disconnect()
+	{
+		Socket.Close();
 	}
 }

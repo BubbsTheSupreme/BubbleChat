@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Text;
+
 
 namespace BubbleChat.Packets;
 
@@ -24,10 +26,11 @@ public class MessagePacket
 		return this;
 	}
 
-	public MessagePacket WriteMessage(byte[] message)
+	public MessagePacket WriteMessage(string message)
 	{
+		byte[] messageBytes = Encoding.ASCII.GetBytes(message); 
 		memoryStream.Seek(3, SeekOrigin.Begin);
-		memoryStream.Write(message);
+		memoryStream.Write(messageBytes);
 		return this;
 	}
 
