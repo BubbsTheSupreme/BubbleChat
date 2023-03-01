@@ -7,12 +7,13 @@ using BubbleChat.Packets.Handler;
 
 namespace BubbleChat.Server;
 
-public class ClientConnection
+public class ClientConnection 
 {
 	public Socket Client;
 	public string Username;
 	public IPAddress ClientIp;
 	private Thread RecvLoop;
+	public static event Action<string> OnDisconnect;
 
 	public ClientConnection(Socket client)
 	{
