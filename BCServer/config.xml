@@ -1,10 +1,16 @@
 <?xml version="1.0"?>
 
+<!-- Keep everything lowercase -->
+
 <config>
-	<password></password>
+	<password status="disabled">password</password> <!-- alternative status "disabled" -->
 	<usercount>32</usercount>
 	<port>12345</port>
+	<logfilepath></logfilepath>
 	<admins>
-		<admin></admin> <!-- IP of admin -->
+		</admin ip="" username=""> 
 	</admins>
+	<accesslist type="blacklist"> <!-- alternative type "whitelist" -->
+		<ip></ip>
+	</accesslist>
 </config>
