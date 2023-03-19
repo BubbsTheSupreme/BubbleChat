@@ -4,39 +4,31 @@ using System.Text;
 
 namespace BubbleChat.Packets;
 
-public class LoginPacket
+public class UIDPacket
 {
 	private MemoryStream memoryStream;
 	private byte[] buffer;
 
-	public LoginPacket(byte valueSize)
+	public UIDPacket()
 	{
-		ushort packetSize = (ushort)(valueSize + 4);
+		ushort packetSize = 4;
 		buffer = new byte[packetSize];
 		memoryStream = new MemoryStream(buffer);
 		memoryStream.Seek(0, SeekOrigin.Begin);
 		memoryStream.Write(BitConverter.GetBytes(packetSize));
 	}
 
-	public LoginPacket WritePacketId(byte id)
+	public UIDPacket WritePacketId(byte id)
 	{
 		memoryStream.Seek(2, SeekOrigin.Begin);
 		memoryStream.WriteByte(id);
 		return this;
 	}
 
-	public LoginPacket WriteValueId(byte length)
+	public UIDPacket WriteUserId(byte id)
 	{
 		memoryStream.Seek(3, SeekOrigin.Begin);
-		memoryStream.WriteByte(length);
-		return this;
-	}
-
-	public LoginPacket WriteValue(string password)
-	{
-		byte[] buffer = Encoding.ASCII.GetBytes(password);
-		memoryStream.Seek(4, SeekOrigin.Begin);
-		memoryStream.Write(buffer);
+		memoryStream.WriteByte(id);
 		return this;
 	}
 

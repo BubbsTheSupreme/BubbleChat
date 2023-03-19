@@ -7,15 +7,14 @@ namespace BubbleChat.Config;
 
 public static class ServerConfig
 {
-	private static string PasswordStatus;
-	private static string Password;
-	private static ushort UserCount;
-	private static ushort Port;
-	private static string LogFilePath;
-	private static string AccessListStatus;
-	private static Dictionary<string, string> Admins = new Dictionary<string, string>();
-	private static List<string> AccessList = new List<string>();
-	private static XmlDocument XmlConfig = new();
+	public static string PasswordStatus;
+	public static string Password;
+	public static ushort Port;
+	public static string LogFilePath;
+	public static string AccessListStatus;
+	public static Dictionary<string, string> Admins = new Dictionary<string, string>();
+	public static List<string> AccessList = new List<string>();
+	public static XmlDocument XmlConfig = new();
 
 	public static void InitConfig(string path)
 	{
@@ -23,15 +22,13 @@ public static class ServerConfig
 		XmlConfig.Load(path);
 
 		var password = XmlConfig.SelectSingleNode("//config/password");
-		var userCount = XmlConfig.SelectSingleNode("//config/usercount");
 		var port = XmlConfig.SelectSingleNode("//config/port");
 		var logFilePath = XmlConfig.SelectSingleNode("//config/logfilepath");
 		var admins = XmlConfig.SelectSingleNode("//config/admins");
 		var accessList = XmlConfig.SelectSingleNode("//config/accesslist");
 
-		Password = password.InnerText;
+		Password = password.Attributes["password"].InnerText;
 		PasswordStatus = password.Attributes["status"].InnerText;
-		UserCount = (ushort)Int16.Parse(userCount.InnerText);
 		Port = (ushort)Int16.Parse(port.InnerText);
 		LogFilePath = logFilePath.InnerText;
 		AccessListStatus = accessList.Attributes["type"].InnerText;

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 
 namespace BubbleChat.Packets;
 
@@ -8,9 +9,9 @@ public class LoginPacket
 	private MemoryStream memoryStream;
 	private byte[] buffer;
 
-	public LoginPacket(byte usernameSize, byte passwordSize)
+	public LoginPacket(byte valueSize)
 	{
-		ushort packetSize = (ushort)(usernameSize + passwordSize + 3);
+		ushort packetSize = (ushort)(valueSize + 4);
 		buffer = new byte[packetSize];
 		memoryStream = new MemoryStream(buffer);
 		memoryStream.Seek(0, SeekOrigin.Begin);
@@ -24,31 +25,18 @@ public class LoginPacket
 		return this;
 	}
 
-	public LoginPacket WritePasswordLength(byte length)
+	public LoginPacket WriteValueId(byte length)
 	{
 		memoryStream.Seek(3, SeekOrigin.Begin);
 		memoryStream.WriteByte(length);
 		return this;
 	}
 
-	public LoginPacket WriteUsernameLength(byte length)
+	public LoginPacket WriteValue(string password)
 	{
+		byte[] buffer = Encoding.ASCII.GetBytes(password);
 		memoryStream.Seek(4, SeekOrigin.Begin);
-		memoryStream.WriteByte(length);
-		return this;
-	}
-
-	public LoginPacket WritePassword(byte[] password)
-	{
-		memoryStream.Seek(5, SeekOrigin.Begin);
-		memoryStream.Write(password);
-		return this;
-	}
-
-	public LoginPacket WriteUsername(byte[] username)
-	{
-		memoryStream.Seek(25, SeekOrigin.Begin);
-		memoryStream.Write(username);
+		memoryStream.Write(buffer);
 		return this;
 	}
 

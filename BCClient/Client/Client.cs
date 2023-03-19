@@ -9,7 +9,8 @@ namespace BubbleChat.Client;
 public class BubbleChatClient // NEEDS ONDISCONNECT EVENT
 {
 	private Socket Socket;
-	// private string Username;
+	public string Username;
+	public byte UserId;
 	private Thread RecvLoop;
 	public static event Action<string> OnDisconnect;
 
@@ -71,7 +72,7 @@ public class BubbleChatClient // NEEDS ONDISCONNECT EVENT
 				ushort size = BitConverter.ToUInt16(buffer, 0);
 				buffer = new byte[size];
 				count = Socket.Receive(buffer);
-				PacketRouter.Process(Socket, buffer);
+				PacketRouter.Process(this, buffer);
 			}
 		}
 		catch(Exception e)

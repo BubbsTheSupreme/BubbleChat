@@ -12,16 +12,23 @@ public class MessagePacket
 
 	public MessagePacket(ushort packetSize)
 	{
-		packetSize = (ushort)(packetSize + 3);
+		packetSize = (ushort)(packetSize + 4);
 		buffer = new byte[packetSize];
 		memoryStream = new MemoryStream(buffer);
 		memoryStream.Seek(0, SeekOrigin.Begin);
 		memoryStream.Write(BitConverter.GetBytes(packetSize));
 	}
 
-	public MessagePacket WritePacketId(byte id)
+	public MessagePacket WriteFirstId(byte id)
 	{
 		memoryStream.Seek(2, SeekOrigin.Begin);
+		memoryStream.WriteByte(id);
+		return this;
+	}
+
+	public MessagePacket WriteSecondId(byte id)
+	{
+		memoryStream.Seek(3, SeekOrigin.Begin);
 		memoryStream.WriteByte(id);
 		return this;
 	}
@@ -29,7 +36,7 @@ public class MessagePacket
 	public MessagePacket WriteMessage(string message)
 	{
 		byte[] messageBytes = Encoding.ASCII.GetBytes(message); 
-		memoryStream.Seek(3, SeekOrigin.Begin);
+		memoryStream.Seek(4, SeekOrigin.Begin);
 		memoryStream.Write(messageBytes);
 		return this;
 	}

@@ -10,14 +10,17 @@ namespace BubbleChat.Server;
 public class ClientConnection 
 {
 	public Socket Client;
+	public BubbleChatServer Server;
 	public string Username;
+	public byte UserId;
 	public IPAddress ClientIp;
 	private Thread RecvLoop;
 	public static event Action<string> OnDisconnect;
 
-	public ClientConnection(Socket client)
+	public ClientConnection(Socket client, BubbleChatServer server)
 	{
 		Client = client;
+		Server = server;
 		ClientIp = IPAddress.Parse(((IPEndPoint)Client.RemoteEndPoint).Address.ToString()); //Gets Ip
 		RecvLoop = new(Receive);
 		RecvLoop.Start(this);
@@ -32,6 +35,7 @@ public class ClientConnection
 		catch (Exception e)
 		{
 			Console.WriteLine(e);
+			OnDisconnect?.Invoke(Username);
 			Client.Close();
 			Client.Dispose();
 		}
@@ -41,6 +45,7 @@ public class ClientConnection
 	{
 		try
 		{
+			OnDisconnect?.Invoke(Username);
 			Client.Close();
 			Client.Dispose();
 		}
@@ -68,6 +73,7 @@ public class ClientConnection
 		}
 		catch(Exception e)
 		{
+			OnDisconnect?.Invoke(client.Username);
 			Console.WriteLine(e);
 			Client.Close();
 			Client.Dispose();
@@ -80,19 +86,21 @@ public class BubbleChatServer
 	private Socket Socket;
 	private IPAddress ServerIp;
 	private IPEndPoint ServerEndPoint;
-	private List<ClientConnection> Connections = new(); //keeps track of all connections
+	public List<ClientConnection> Connections = new(); //keeps track of all connections
 
 	public BubbleChatServer(ushort port)
 	{
 		try 
 		{
+			ClientConnection.OnDisconnect += RemoveClientConnection;
 			// GET IP
 			IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
 			ServerIp = host.AddressList[1];
 			ServerEndPoint = new(ServerIp, port);
 			// CREATE SOCKET WITH IP
-			Socket = new(ServerIp.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+			Socket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			Socket.Bind(ServerEndPoint);
+
 		}
 		catch (Exception e)
 		{
@@ -106,13 +114,17 @@ public class BubbleChatServer
 	{
 		try
 		{
+			byte latestId = 0;
 			Console.WriteLine("Listening for connections...");
 			while(true)
 			{
 				Socket.Listen();
 				Socket client = Socket.Accept(); // Get client connection socket 
-				ClientConnection clientCon = new(client); //create new client connection 
+				ClientConnection clientCon = new(client, this); //create new client connection
+				clientCon.UserId = latestId;
 				Connections.Add(clientCon); // add client connection to list of connections
+				if (latestId == 255) latestId = 0;
+				else latestId++;
 			}
 		}
 		catch (Exception e)
@@ -120,6 +132,15 @@ public class BubbleChatServer
 			Console.WriteLine(e);
 			Socket.Close();
 			Socket.Dispose();
+		}
+	}
+
+	public void RemoveClientConnection(string username)
+	{
+		foreach (ClientConnection connection in Connections.ToArray())
+		{
+			if (connection.Username == username)
+				Connections.Remove(connection);
 		}
 	}
 

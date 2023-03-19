@@ -3,14 +3,11 @@
 <!-- Keep everything lowercase -->
 
 <config>
-	<password status="disabled">password</password> <!-- alternative status "disabled" -->
-	<usercount>32</usercount>
+	<password status="disabled" password="password"></password> <!-- alternative status "disabled" -->
 	<port>12345</port>
 	<logfilepath></logfilepath>
 	<admins>
-		</admin ip="" username=""> 
 	</admins>
 	<accesslist type="blacklist"> <!-- alternative type "whitelist" -->
-		<ip></ip>
 	</accesslist>
 </config>
