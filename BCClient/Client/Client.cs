@@ -1,7 +1,7 @@
 using System;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
+using System.Net.Sockets;
+using BubbleChat.Logging;
 using BubbleChat.Packets.Handler;
 
 namespace BubbleChat.Client;
@@ -34,12 +34,12 @@ public class BubbleChatClient // NEEDS ONDISCONNECT EVENT
 			RecvLoop = new Thread(Receive);
 			Socket.Connect(ip, port);
             Console.WriteLine($"Connected to: {ip}");
+			Logger.Info($"Connected to: {ip}");
 			RecvLoop.Start();
 		}
 		catch (Exception e)
 		{
-			Console.WriteLine(e);
-			OnDisconnect?.Invoke("Could not connect..");
+			Logger.Error(e.ToString());
 			Socket.Close();
 			Socket.Dispose();
 		}
@@ -53,7 +53,7 @@ public class BubbleChatClient // NEEDS ONDISCONNECT EVENT
 		}
 		catch (Exception e)
 		{
-			Console.WriteLine(e);
+			Logger.Error(e.ToString());
 			OnDisconnect?.Invoke("Connection has been lost");
 			Socket.Close();
 			Socket.Dispose();
@@ -77,7 +77,7 @@ public class BubbleChatClient // NEEDS ONDISCONNECT EVENT
 		}
 		catch(Exception e)
 		{
-			Console.WriteLine(e);
+			Logger.Error(e.ToString());
 			OnDisconnect?.Invoke("Connection has been lost");
 			Socket.Close();
 			Socket.Dispose();

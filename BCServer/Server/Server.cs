@@ -4,6 +4,7 @@ using System.Threading;
 using System.Net.Sockets;
 using System.Collections.Generic;
 using BubbleChat.Packets.Handler;
+using BubbleChat.Logging;
 
 namespace BubbleChat.Server;
 
@@ -34,7 +35,7 @@ public class ClientConnection
 		}
 		catch (Exception e)
 		{
-			Console.WriteLine(e);
+			Logger.Error(e.ToString());
 			OnDisconnect?.Invoke(Username);
 			Client.Close();
 			Client.Dispose();
@@ -51,7 +52,7 @@ public class ClientConnection
 		}
 		catch(Exception e)
 		{
-			Console.WriteLine(e);
+			Logger.Error(e.ToString());
 		}
 	}
 
@@ -74,7 +75,7 @@ public class ClientConnection
 		catch(Exception e)
 		{
 			OnDisconnect?.Invoke(client.Username);
-			Console.WriteLine(e);
+			Logger.Error(e.ToString());
 			Client.Close();
 			Client.Dispose();
 		}
@@ -104,7 +105,7 @@ public class BubbleChatServer
 		}
 		catch (Exception e)
 		{
-			Console.WriteLine(e);
+			Logger.Error(e.ToString());
 			Socket.Close();
 			Socket.Dispose();
 		}
@@ -129,7 +130,7 @@ public class BubbleChatServer
 		}
 		catch (Exception e)
 		{
-			Console.WriteLine(e);
+			Logger.Error(e.ToString());
 			Socket.Close();
 			Socket.Dispose();
 		}
@@ -140,7 +141,10 @@ public class BubbleChatServer
 		foreach (ClientConnection connection in Connections.ToArray())
 		{
 			if (connection.Username == username)
+			{
+				Logger.Info($"Removing {username} from BubbleChatServer.Connections");
 				Connections.Remove(connection);
+			}
 		}
 	}
 
