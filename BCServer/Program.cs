@@ -9,9 +9,8 @@ class Program
 	static void Main(string[] args)
 	{
 		Logger.Init();
-		Logger.Info("TEST");
-		// ServerConfig.InitConfig("config.xml");
-		// BubbleChatServer server = new((ushort)12345);
-		// server.StartListening();
+		ServerConfig.InitConfig("config.xml");
+		BubbleChatServer server = new((ushort)12345);
+		server.StartListening();
 	}
 }
