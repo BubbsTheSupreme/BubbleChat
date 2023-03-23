@@ -18,40 +18,44 @@ public static class PacketRouter
 				switch (valueId)
 				{
 					case 0:
-						string username = Encoding.ASCII.GetString(buffer[2..]);
+						string username = Encoding.ASCII.GetString(buffer[4..]);
 						client.Username = username;
 						UIDPacket uid = new();
 						uid.WritePacketId(0).WriteUserId(client.UserId);
 						client.Send(uid.Finalize());
 						break;
 					case 1:
-						string password = Encoding.ASCII.GetString(buffer[2..]);
-						if (ServerConfig.Password.Equals(password.Replace("\0", "")))
+						string password = Encoding.ASCII.GetString(buffer[4..]);
+						Console.WriteLine(password);
+						foreach (char c in password.ToCharArray())
+						{
+							if (c == '\0') Console.WriteLine("\\0");
+							else Console.WriteLine(c);
+						}
+						if (ServerConfig.Password.Equals(password.Trim('\0')))
 						{
 							Console.WriteLine("[SERVER] Password check successful!");
-							string message = "PASSED";
-							MessagePacket responsePacket = new((ushort)message.Length);
-							responsePacket.WriteFirstId(1).WriteSecondId(0).WriteMessage(message);
-							client.Send(responsePacket.Finalize());
+							UIDPacket packet = new();
+							packet.WritePacketId(1).WriteUserId(0);
+							client.Send(packet.Finalize());
 						} else
 						{
 							Console.WriteLine("[SERVER] Password check failed..");
-							string message = "FAILED";
-							MessagePacket responsePacket = new((ushort)message.Length);
-							responsePacket.WriteFirstId(1).WriteSecondId(0).WriteMessage(message);
-							client.Send(responsePacket.Finalize());
+							UIDPacket packet = new();
+							packet.WritePacketId(1).WriteUserId(1);
+							client.Send(packet.Finalize());
 						} 
 					break;
 				}
 				break;
 			case 1:
-				Console.WriteLine($"[{client.Username}] {Encoding.ASCII.GetString(buffer[2..])}");
+				Console.WriteLine($"[{client.Username}] {Encoding.ASCII.GetString(buffer[4..])}");
 				foreach (ClientConnection connection in client.Server.Connections)
 				if (connection.UserId != buffer[1])
 				{
-					string new_message = $"[{client.Username}] {Encoding.ASCII.GetString(buffer[2..])}";
-					MessagePacket packet = new((ushort)new_message.Length);
-					packet.WriteFirstId(1).WriteSecondId(buffer[1]).WriteMessage(new_message);
+					string new_message = $"[{client.Username}] {Encoding.ASCII.GetString(buffer[4..])}";
+					MessagePacket packet = new(2);
+					packet.WriteSecondId(buffer[1]).WriteMessage(new_message);
 					connection.Send(packet.Finalize());
 				}
 			break;

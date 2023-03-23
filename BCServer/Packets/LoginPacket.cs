@@ -36,7 +36,6 @@ public class LoginPacket
 		ushort size = (ushort)memoryStream.Position;
 		memoryStream.Seek(0, SeekOrigin.Begin);
 		memoryStream.Write(BitConverter.GetBytes(size));
-		memoryStream.Flush();
 		byte[] buffer = memoryStream.ToArray();
 		memoryStream.Dispose();
 		return buffer;
