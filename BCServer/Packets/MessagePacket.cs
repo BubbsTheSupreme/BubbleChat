@@ -8,22 +8,12 @@ namespace BubbleChat.Packets;
 public class MessagePacket
 {
 	private MemoryStream memoryStream;
-	private byte[] buffer;
 
-	public MessagePacket(ushort packetSize)
+	public MessagePacket(byte packetId)
 	{
-		packetSize = (ushort)(packetSize + 4);
-		buffer = new byte[packetSize];
-		memoryStream = new MemoryStream(buffer);
-		memoryStream.Seek(0, SeekOrigin.Begin);
-		memoryStream.Write(BitConverter.GetBytes(packetSize));
-	}
-
-	public MessagePacket WriteFirstId(byte id)
-	{
+		memoryStream = new MemoryStream();
 		memoryStream.Seek(2, SeekOrigin.Begin);
-		memoryStream.WriteByte(id);
-		return this;
+		memoryStream.WriteByte(packetId);
 	}
 
 	public MessagePacket WriteSecondId(byte id)
@@ -43,7 +33,11 @@ public class MessagePacket
 
 	public byte[] Finalize()
 	{
+		ushort size = (ushort)memoryStream.Position;
+		memoryStream.Seek(0, SeekOrigin.Begin);
+		memoryStream.Write(BitConverter.GetBytes(size));
 		memoryStream.Flush();
+		byte[] buffer = memoryStream.ToArray();
 		memoryStream.Dispose();
 		return buffer;
 	}

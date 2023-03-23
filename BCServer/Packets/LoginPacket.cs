@@ -2,47 +2,42 @@ using System;
 using System.IO;
 using System.Text;
 
+
 namespace BubbleChat.Packets;
 
 public class LoginPacket
 {
 	private MemoryStream memoryStream;
-	private byte[] buffer;
 
-	public LoginPacket(byte valueSize)
+	public LoginPacket(byte packetId)
 	{
-		ushort packetSize = (ushort)(valueSize + 4);
-		buffer = new byte[packetSize];
-		memoryStream = new MemoryStream(buffer);
-		memoryStream.Seek(0, SeekOrigin.Begin);
-		memoryStream.Write(BitConverter.GetBytes(packetSize));
+		memoryStream = new MemoryStream();
+		memoryStream.Seek(2, SeekOrigin.Begin);
+		memoryStream.WriteByte(packetId);
 	}
 
-	public LoginPacket WritePacketId(byte id)
+	public LoginPacket WriteValueId(byte id)
 	{
-		memoryStream.Seek(2, SeekOrigin.Begin);
+		memoryStream.Seek(3, SeekOrigin.Begin);
 		memoryStream.WriteByte(id);
 		return this;
 	}
 
-	public LoginPacket WriteValueId(byte length)
+	public LoginPacket WriteValue(string message)
 	{
-		memoryStream.Seek(3, SeekOrigin.Begin);
-		memoryStream.WriteByte(length);
-		return this;
-	}
-
-	public LoginPacket WriteValue(string password)
-	{
-		byte[] buffer = Encoding.ASCII.GetBytes(password);
+		byte[] messageBytes = Encoding.ASCII.GetBytes(message); 
 		memoryStream.Seek(4, SeekOrigin.Begin);
-		memoryStream.Write(buffer);
+		memoryStream.Write(messageBytes);
 		return this;
 	}
 
 	public byte[] Finalize()
 	{
+		ushort size = (ushort)memoryStream.Position;
+		memoryStream.Seek(0, SeekOrigin.Begin);
+		memoryStream.Write(BitConverter.GetBytes(size));
 		memoryStream.Flush();
+		byte[] buffer = memoryStream.ToArray();
 		memoryStream.Dispose();
 		return buffer;
 	}
