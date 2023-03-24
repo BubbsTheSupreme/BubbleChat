@@ -67,7 +67,7 @@ public class ClientConnection
 				int count = client.Client.Receive(buffer);
 				if (count == 0) break;
 				ushort size = BitConverter.ToUInt16(buffer, 0);
-				buffer = new byte[size];
+				buffer = new byte[size - 2];
 				count = client.Client.Receive(buffer);
 				PacketRouter.Process(client, buffer);
 			}
