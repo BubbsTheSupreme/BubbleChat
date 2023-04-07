@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<filter>
+	<censor status="yes">*</censor> <!-- status options yes or no -->
+	<!-- in between brackets is what character is used to censor, must be a single character-->
+
+	<bannedwords>
+		<word bannable="no"></word> <!-- bannable options are also yes or no -->
+	</bannedwords>
+</filter>
